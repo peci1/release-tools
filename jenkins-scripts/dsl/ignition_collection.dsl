@@ -24,7 +24,7 @@ ignition_collections = [
           'physics'   : [ debbuild: 'ign-physics3'   , branch: 'master' ],
           'rendering' : [ debbuild: 'ign-rendering4' , branch: 'master' ],
           'sensors'   : [ debbuild: 'ign-sensors4'   , branch: 'master' ],
-          'sdformat'  : [ debbuild: 'sdformat10'     , branch: 'sdf10'  ],
+          'sdformat'  : [ debbuild: 'sdformat10'     , branch: 'chapulina/private_tinyxml2'  ],
           'transport' : [ debbuild: 'ign-transport9' , branch: 'master' ],
     ],
   ],
