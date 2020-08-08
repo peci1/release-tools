@@ -212,6 +212,9 @@ if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
+ls -l /usr/lib/man-db/
+ls -l /usr/lib/man-db/libmandb-2.8.3.so
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/man-db
 debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
