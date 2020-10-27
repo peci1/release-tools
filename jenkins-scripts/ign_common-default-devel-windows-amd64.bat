@@ -6,7 +6,7 @@ set IGN_CLEAN_WORKSPACE=true
 
 set DEPEN_PKGS="dlfcn-win32 ffmpeg"
 
-set COLCON_PACKAGE=ignition-gui
+set COLCON_PACKAGE=ignition-common
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
