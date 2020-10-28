@@ -9,4 +9,4 @@ set DEPEN_PKGS="dlfcn-win32 ffmpeg"
 set COLCON_PACKAGE=ignition-common
 set COLCON_AUTO_MAJOR_VERSION=true
 
-call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
+call "%SCRIPT_DIR%/lib/colcon-default-devel-windows.bat"
