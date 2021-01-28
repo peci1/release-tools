@@ -57,7 +57,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     lib=lib${dep//ign/ignition}$major_version-dev
     lib=${lib//_/-}
     echo "Uninstalling $lib"
-    apt purge $lib
+    apt purge -y $lib
 
     rm -fr $WORKSPACE/$dep
 
