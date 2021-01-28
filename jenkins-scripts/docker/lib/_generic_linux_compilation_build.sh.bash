@@ -48,6 +48,17 @@ for dep_uppercase in $OSRF_DEPS; do
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
+
+    # Uninstall debs if available
+    eval major_version="\$$dep_uppercase_MAJOR_VERSION"
+    if [[ ${major_version} == "1" ]]; then
+      major_version=""
+    fi
+    lib=lib${dep//ign/ignition}$major_version-dev
+    lib=${lib//_/-}
+    echo "Uninstalling $lib"
+    apt purge $lib
+
     rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
