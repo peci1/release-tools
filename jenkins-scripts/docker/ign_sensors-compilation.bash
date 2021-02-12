@@ -46,7 +46,7 @@ if [[ ${IGN_SENSORS_MAJOR_VERSION} -eq 5 ]]; then
 
   export BUILD_SDFORMAT=true
   export SDFORMAT_MAJOR_VERSION=11
-  export SDFORMAT_BRANCH=master
+  export SDFORMAT_BRANCH=chapulina/11/quiet_urdf
 fi
 export GZDEV_PROJECT_NAME="ignition-sensors${IGN_SENSORS_MAJOR_VERSION}"
 
