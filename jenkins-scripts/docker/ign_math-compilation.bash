@@ -33,6 +33,10 @@ if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
+export BUILD_IGN_CMAKE=true
+export IGN_CMAKE_MAJOR_VERSION=1
+export IGN_CMAKE_BRANCH=chapulina/2/check_test_ran
+
 export GZDEV_PROJECT_NAME="ignition-math${IGN_MATH_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"
