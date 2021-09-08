@@ -89,6 +89,8 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
   brew install ccache
   export PATH=/usr/local/opt/ccache/libexec:$PATH
 fi
+
+brew install swig
 echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
