@@ -5,8 +5,10 @@ Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
 brew_supported_distros         = [ "catalina", "mojave" ]
+brew_newest_distros            = [ "bigsur" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
+bottle_builder_newest_job_name = 'generic-release-homebrew_newest_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
 
 def DISABLE_TESTS = false
@@ -300,6 +302,125 @@ bottle_job_hash_updater.with
         parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
       }
     } // end of configure
+  }
+}
+
+
+// -------------------------------------------------------------------
+// 5. BREW bottle creation MATRIX job from pullrequest
+def bottle_newest_job_builder = matrixJob(bottle_builder_newest_job_name)
+// set enable_github_pr_integration flag to false so we can customize trigger behavior
+OSRFBrewCompilationAnyGitHub.create(bottle_newest_job_builder,
+                                    "osrf/homebrew-simulation",
+                                    DISABLE_TESTS,
+                                    NO_SUPPORTED_BRANCHES,
+                                    DISABLE_GITHUB_INTEGRATION)
+GenericRemoteToken.create(bottle_newest_job_builder)
+
+bottle_newest_job_builder.with
+{
+   wrappers {
+        preBuildCleanup()
+        credentialsBinding {
+          // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+          string('GITHUB_TOKEN', 'osrf-migration-token')
+        }
+   }
+
+   properties {
+     priority 100
+   }
+
+   logRotator {
+     artifactNumToKeep(10)
+   }
+
+   axes {
+     // use labels osx_$osxdistro
+     label('label', brew_newest_distros.collect { "osx_$it" })
+   }
+
+   // Arbitrary choose the first one for touchstone label
+   String touchstone_label = '"osx_' + brew_newest_distros[0] + '"'
+
+   touchStoneFilter("label == ${touchstone_label}")
+
+   steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b><a href="https://github.com/osrf/homebrew-simulation/pull/' +
+          build.buildVariableResolver.resolve('ghprbPullId') + '">PR ' +
+          build.buildVariableResolver.resolve('ghprbPullId') + '</a></b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+
+        shell("""\
+              #!/bin/bash -xe
+              /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_creation.bash
+              """.stripIndent())
+   }
+
+   configure { project ->
+     project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+      'string' "${bottle_hash_updater_job_name}"
+     }
+     project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
+         adminlist 'osrf-jenkins j-rivero scpeters'
+         orgslist 'ignitionrobotics'
+         whitelist 'osrfbuild'
+         useGitHubHooks(true)
+         allowMembersOfWhitelistedOrgsAsAdmin(true)
+         useGitHubHooks(true)
+         onlyTriggerPhrase(true)
+         permitAll(false)
+         cron()
+         triggerPhrase '.*build bigsur bottle.*'
+         extensions {
+             'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
+               commitStatusContext '${JOB_NAME}'
+               triggeredStatus 'starting deployment to build.osrfoundation.org'
+               startedStatus 'deploying to build.osrfoundation.org'
+               addTestResults(true)
+             }
+         }
+     }
+   }
+
+   publishers {
+     archiveArtifacts
+     {
+       pattern("${directory_for_bottles}/*")
+       allowEmpty()
+     }
+
+     // call to the repository_uploader_packages to upload to S3 the binary
+     downstreamParameterized
+     {
+        trigger('repository_uploader_packages') {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+              predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+              predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
+              predefinedProp("ARCH",           "64bits")
+          }
+        }
+     }
+
+     // call to the bottle hash updater
+     downstreamParameterized
+     {
+        trigger(bottle_hash_updater_job_name)
+        {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+              predefinedProp("PULL_REQUEST_URL", "https://github.com/osrf/homebrew-simulation/pull/\${ghprbPullId}")
+          }
+        }
+     }
   }
 }
 
