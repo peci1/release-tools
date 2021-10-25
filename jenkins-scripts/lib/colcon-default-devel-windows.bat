@@ -105,7 +105,9 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% :build_workspace %COLCON_PACKAGE% || goto :error
+echo "ERRORLEVEL BEFORE IS %errorlevel%"
+call %win_lib% :build_workspace %COLCON_PACKAGE%
+echo "ERRORLEVEL AFTER IS %errorlevel%"
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
