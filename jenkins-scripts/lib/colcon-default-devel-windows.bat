@@ -3,7 +3,7 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : relative path to WORKSPACE containing the sources
 ::   - GAZEBODISTRO_FILE : (optional) vcs yaml file in the gazebodistro repository
-::   - COLCON_PACKAGE : package name to test in colcon ws
+::   - OLCON_PACKAGE : package name to test in colcon ws
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
 ::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
@@ -22,6 +22,8 @@ set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 set LOCAL_WS_BUILD=%WORKSPACE%\build
+
+set RETURN_CODE=0
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -106,8 +108,10 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
 echo "ERRORLEVEL BEFORE IS %errorlevel%"
+echo "RETURN_CODE BEFORE IS %RETURN_CODE%"
 call %win_lib% :build_workspace %COLCON_PACKAGE%
 echo "ERRORLEVEL AFTER IS %errorlevel%"
+echo "RETURN_CODE AFTER IS %RETURN_CODE%"
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
