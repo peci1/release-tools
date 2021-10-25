@@ -107,9 +107,7 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-echo "ERRORLEVEL BEFORE IS %errorlevel%"
-echo "RETURN_CODE BEFORE IS %RETURN_CODE%"
-call %win_lib% :build_workspace %COLCON_PACKAGE%
+call %win_lib% :build_workspace %COLCON_PACKAGE% || if %RETURN_CODE% (goto :error)
 echo "ERRORLEVEL AFTER IS %errorlevel%"
 echo "RETURN_CODE AFTER IS %RETURN_CODE%"
 echo # END SECTION
