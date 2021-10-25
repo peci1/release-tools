@@ -281,4 +281,5 @@ goto :EOF
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
+set RETURN_CODE=%errorlevel%
 exit /B %errorlevel%
